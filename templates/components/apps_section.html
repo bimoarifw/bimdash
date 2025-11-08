@@ -1,0 +1,443 @@
+<!-- Apps Section -->
+<div class="mb-4 sm:mb-6 lg:mb-8">
+    <div class="flex items-center justify-between mb-3 sm:mb-4">
+        <h2 class="text-base sm:text-lg font-medium text-gray-900">My Apps</h2>
+        <button id="add-app-btn"
+            class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6">
+                </path>
+            </svg>
+            Add App
+        </button>
+    </div>
+
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-3 sm:gap-4"
+        id="apps-grid">
+        {% for app in apps %}
+        <div
+            class="app-card group relative bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md hover:border-gray-300 transition-all duration-200 overflow-hidden">
+            <a href="{{ app.url }}" target="_blank" class="block p-4 text-center">
+                <div
+                    class="w-12 h-12 mx-auto mb-3 bg-gray-100 rounded-lg flex items-center justify-center group-hover:bg-blue-50 transition-colors duration-200">
+                    <img src="{{ app.favicon_url }}" alt="{{ app.name }} icon" class="w-8 h-8 rounded"
+                        onerror="this.src='https://www.google.com/s2/favicons?domain=example.com&sz=32'">
+                </div>
+                <h3
+                    class="text-sm font-medium text-gray-900 truncate group-hover:text-blue-600 transition-colors duration-200">
+                    {{ app.name }}</h3>
+            </a>
+            <button
+                class="delete-app-btn absolute top-1 right-1 w-6 h-6 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 hover:bg-red-600 transition-all duration-200 flex items-center justify-center text-xs"
+                data-app-id="{{ app.id }}">
+                ×
+            </button>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Empty state -->
+    <div id="empty-apps" class="{% if apps %}hidden{% endif %} text-center py-12">
+        <div class="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
+            <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10">
+                </path>
+            </svg>
+        </div>
+        <h3 class="text-lg font-medium text-gray-900 mb-2">No apps added yet</h3>
+        <p class="text-gray-500 mb-4">Add your favorite applications to quickly access them from your dashboard.</p>
+        <button id="add-app-empty-btn"
+            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6">
+                </path>
+            </svg>
+            Add Your First App
+        </button>
+    </div>
+</div>
+
+<!-- Add App Modal -->
+<div id="add-app-modal" class="fixed inset-0 z-50 hidden bg-gray-900 bg-opacity-50">
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="bg-white rounded-xl shadow-2xl border border-gray-200 w-full max-w-xs sm:max-w-sm md:max-w-md"
+            id="add-modal-content">
+            <div class="p-4 sm:p-6 md:p-8">
+                <div class="text-center mb-4 sm:mb-6 md:mb-8">
+                    <div
+                        class="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto mb-3 sm:mb-4 shadow-lg">
+                        <svg class="w-6 h-6 sm:w-8 sm:h-8 text-white" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 mb-2">Add New Application</h3>
+                    <p class="text-sm sm:text-base text-gray-600">Enter the details to add your favorite app to the
+                        dashboard</p>
+                </div>
+                <div class="flex items-center justify-end mb-6">
+                    <button id="close-modal-btn"
+                        class="text-gray-400 hover:text-gray-600 transition-colors duration-200 p-2 rounded-full hover:bg-gray-100">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                <form id="add-app-form" class="space-y-4 sm:space-y-6">
+                    <div>
+                        <label for="app-name" class="block text-sm font-semibold text-gray-700 mb-2 sm:mb-3">Application
+                            Name</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 sm:pl-4 flex items-center pointer-events-none">
+                                <svg class="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M7 4V2a1 1 0 011-1h8a1 1 0 011 1v2m-9 0h10m-9 0V1m10 3V1m0 3l1 1v16a2 2 0 01-2 2H6a2 2 0 01-2-2V5l1-1z">
+                                    </path>
+                                </svg>
+                            </div>
+                            <input type="text" id="app-name" name="name" required
+                                class="w-full pl-9 sm:pl-12 pr-3 sm:pr-4 py-3 sm:py-4 border-2 border-gray-200 rounded-lg sm:rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-gray-900 placeholder-gray-400 text-sm sm:text-base"
+                                placeholder="e.g., Gmail, GitHub, Notion">
+                        </div>
+                    </div>
+                    <div>
+                        <label for="app-url" class="block text-sm font-semibold text-gray-700 mb-2 sm:mb-3">Application
+                            URL</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 sm:pl-4 flex items-center pointer-events-none">
+                                <svg class="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1">
+                                    </path>
+                                </svg>
+                            </div>
+                            <input type="url" id="app-url" name="url" required
+                                class="w-full pl-9 sm:pl-12 pr-3 sm:pr-4 py-3 sm:py-4 border-2 border-gray-200 rounded-lg sm:rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-gray-900 placeholder-gray-400 text-sm sm:text-base"
+                                placeholder="https://example.com">
+                        </div>
+                    </div>
+                    <div
+                        class="flex flex-col sm:flex-row sm:justify-end sm:space-x-4 space-y-3 sm:space-y-0 pt-4 sm:pt-6 md:pt-8">
+                        <button type="button" id="cancel-btn"
+                            class="w-full sm:w-auto px-4 sm:px-6 py-2.5 sm:py-3 text-sm font-semibold text-gray-700 bg-gray-100 border border-gray-300 rounded-lg sm:rounded-xl hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-all duration-200 shadow-sm">
+                            Cancel
+                        </button>
+                        <button type="submit"
+                            class="w-full sm:w-auto px-4 sm:px-6 py-2.5 sm:py-3 text-sm font-semibold text-white bg-gradient-to-r from-blue-600 to-blue-700 border border-transparent rounded-lg sm:rounded-xl hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 shadow-lg transform hover:scale-105">
+                            <span class="flex items-center justify-center">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                </svg>
+                                Add Application
+                            </span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="delete-app-modal" class="fixed inset-0 z-50 hidden bg-gray-900 bg-opacity-50">
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="bg-white rounded-xl shadow-2xl border border-gray-200 w-full max-w-xs sm:max-w-sm md:max-w-md"
+            id="delete-modal-content">
+            <div class="p-4 sm:p-6 md:p-8">
+                <div class="text-center mb-4 sm:mb-6 md:mb-8">
+                    <div
+                        class="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-red-500 to-red-600 rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto mb-3 sm:mb-4 shadow-lg">
+                        <svg class="w-6 h-6 sm:w-8 sm:h-8 text-white" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                            </path>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 mb-2">Delete Application</h3>
+                    <p class="text-sm sm:text-base text-gray-600 leading-relaxed">Are you sure you want to delete this
+                        application? This
+                        action cannot be undone and will permanently remove it from your dashboard.</p>
+                </div>
+                <div class="flex flex-col sm:flex-row sm:justify-end sm:space-x-4 space-y-3 sm:space-y-0">
+                    <button type="button" id="cancel-delete-btn"
+                        class="w-full sm:w-auto px-4 sm:px-6 py-2.5 sm:py-3 text-sm font-semibold text-gray-700 bg-gray-100 border border-gray-300 rounded-lg sm:rounded-xl hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-all duration-200 shadow-sm">
+                        Cancel
+                    </button>
+                    <button type="button" id="confirm-delete-btn"
+                        class="w-full sm:w-auto px-4 sm:px-6 py-2.5 sm:py-3 text-sm font-semibold text-white bg-gradient-to-r from-red-600 to-red-700 border border-transparent rounded-lg sm:rounded-xl hover:from-red-700 hover:to-red-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all duration-200 shadow-lg transform hover:scale-105">
+                        <span class="flex items-center justify-center">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                                </path>
+                            </svg>
+                            Delete Application
+                        </span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Notification -->
+<div id="toast" class="fixed bottom-4 right-4 z-50 hidden">
+    <div class="bg-white border border-gray-200 rounded-lg shadow-lg p-4 max-w-sm">
+        <div class="flex items-center">
+            <div id="toast-icon" class="flex-shrink-0">
+                <!-- Icon will be set by JavaScript -->
+            </div>
+            <div class="ml-3">
+                <p id="toast-message" class="text-sm font-medium text-gray-900"></p>
+            </div>
+            <div class="ml-auto pl-3">
+                <button id="close-toast-btn" class="text-gray-400 hover:text-gray-600">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd"
+                            d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                            clip-rule="evenodd"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const modal = document.getElementById('add-app-modal');
+        const deleteModal = document.getElementById('delete-app-modal');
+        const addAppBtn = document.getElementById('add-app-btn');
+        const addAppEmptyBtn = document.getElementById('add-app-empty-btn');
+        const closeModalBtn = document.getElementById('close-modal-btn');
+        const cancelBtn = document.getElementById('cancel-btn');
+        const cancelDeleteBtn = document.getElementById('cancel-delete-btn');
+        const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
+        const addAppForm = document.getElementById('add-app-form');
+        const appsGrid = document.getElementById('apps-grid');
+        const emptyApps = document.getElementById('empty-apps');
+        const toast = document.getElementById('toast');
+        const toastIcon = document.getElementById('toast-icon');
+        const toastMessage = document.getElementById('toast-message');
+        const closeToastBtn = document.getElementById('close-toast-btn');
+
+        let appToDelete = null;
+
+        // Toast functions
+        function showToast(message, type = 'success') {
+            toastMessage.textContent = message;
+
+            if (type === 'success') {
+                toastIcon.innerHTML = '<svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>';
+            } else if (type === 'error') {
+                toastIcon.innerHTML = '<svg class="w-5 h-5 text-red-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path></svg>';
+            }
+
+            toast.classList.remove('hidden');
+            setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 3000);
+        }
+
+        // Open modal
+        function openModal() {
+            modal.classList.remove('hidden');
+            document.getElementById('app-name').focus();
+        }
+
+        // Close modal
+        function closeModal() {
+            modal.classList.add('hidden');
+            addAppForm.reset();
+        }
+
+        // Open delete modal
+        function openDeleteModal(appId, appCard) {
+            appToDelete = { id: appId, card: appCard };
+            deleteModal.classList.remove('hidden');
+        }
+
+        // Close delete modal
+        function closeDeleteModal() {
+            deleteModal.classList.add('hidden');
+            appToDelete = null;
+        }
+
+        // Open modal
+        function openModal() {
+            modal.classList.remove('hidden');
+            document.getElementById('app-name').focus();
+        }
+
+        // Close modal
+        function closeModal() {
+            modal.classList.add('hidden');
+            addAppForm.reset();
+        }
+
+        // Close modal on backdrop click
+        modal.addEventListener('click', function (e) {
+            if (e.target === modal) {
+                closeModal();
+            }
+        });
+
+        deleteModal.addEventListener('click', function (e) {
+            if (e.target === deleteModal) {
+                closeDeleteModal();
+            }
+        });
+
+        // Close modal on escape key
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') {
+                if (!modal.classList.contains('hidden')) {
+                    closeModal();
+                }
+                if (!deleteModal.classList.contains('hidden')) {
+                    closeDeleteModal();
+                }
+            }
+        });
+
+        // Event listeners
+        addAppBtn.addEventListener('click', openModal);
+        addAppEmptyBtn.addEventListener('click', openModal);
+        closeModalBtn.addEventListener('click', closeModal);
+        cancelBtn.addEventListener('click', closeModal);
+        cancelDeleteBtn.addEventListener('click', closeDeleteModal);
+        closeToastBtn.addEventListener('click', () => toast.classList.add('hidden'));
+
+        // Confirm delete
+        confirmDeleteBtn.addEventListener('click', async function () {
+            if (!appToDelete) return;
+
+            try {
+                const response = await fetch(`/api/apps/${appToDelete.id}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    appToDelete.card.remove();
+                    updateEmptyState();
+                    closeDeleteModal();
+                    showToast('App deleted successfully', 'success');
+                } else {
+                    showToast('Error deleting app. Please try again.', 'error');
+                }
+            } catch (error) {
+                console.error('Error deleting app:', error);
+                showToast('Error deleting app. Please try again.', 'error');
+            }
+        });
+
+        // Close modal when clicking outside
+        modal.addEventListener('click', function (e) {
+            if (e.target === modal) {
+                closeModal();
+            }
+        });
+
+        // Close delete modal when clicking outside
+        deleteModal.addEventListener('click', function (e) {
+            if (e.target === deleteModal) {
+                closeDeleteModal();
+            }
+        });
+
+        // Handle form submission
+        addAppForm.addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const formData = new FormData(addAppForm);
+            const appData = {
+                name: formData.get('name'),
+                url: formData.get('url')
+            };
+
+            try {
+                const response = await fetch('/api/apps', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(appData)
+                });
+
+                if (response.ok) {
+                    const newApp = await response.json();
+                    addAppToGrid(newApp);
+                    closeModal();
+                    updateEmptyState();
+                    showToast('App added successfully!', 'success');
+                } else {
+                    const error = await response.json();
+                    showToast('Error: ' + error.error, 'error');
+                }
+            } catch (error) {
+                console.error('Error adding app:', error);
+                showToast('Error adding app. Please try again.', 'error');
+            }
+        });
+
+        // Add app to grid
+        function addAppToGrid(app) {
+            const appCard = document.createElement('div');
+            appCard.className = 'app-card group relative bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md hover:border-gray-300 transition-all duration-200 overflow-hidden';
+            appCard.innerHTML = `
+            <a href="${app.url}" target="_blank" class="block p-4 text-center">
+                <div class="w-12 h-12 mx-auto mb-3 bg-gray-100 rounded-lg flex items-center justify-center group-hover:bg-blue-50 transition-colors duration-200">
+                    <img src="${app.favicon_url}" alt="${app.name} icon" class="w-8 h-8 rounded" onerror="this.src='https://www.google.com/s2/favicons?domain=example.com&sz=32'">
+                </div>
+                <h3 class="text-sm font-medium text-gray-900 truncate group-hover:text-blue-600 transition-colors duration-200">${app.name}</h3>
+            </a>
+            <button class="delete-app-btn absolute top-1 right-1 w-6 h-6 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 hover:bg-red-600 transition-all duration-200 flex items-center justify-center text-xs" data-app-id="${app.id}">
+                ×
+            </button>
+        `;
+
+            appsGrid.appendChild(appCard);
+
+            // Add delete event listener
+            const deleteBtn = appCard.querySelector('.delete-app-btn');
+            deleteBtn.addEventListener('click', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                deleteApp(app.id, appCard);
+            });
+        }
+
+        // Delete app
+        function deleteApp(appId, appCard) {
+            openDeleteModal(appId, appCard);
+        }
+
+        // Update empty state
+        function updateEmptyState() {
+            const appCards = appsGrid.querySelectorAll('.app-card');
+            if (appCards.length === 0) {
+                emptyApps.classList.remove('hidden');
+            } else {
+                emptyApps.classList.add('hidden');
+            }
+        }
+
+        // Add delete event listeners to existing apps
+        document.querySelectorAll('.delete-app-btn').forEach(btn => {
+            btn.addEventListener('click', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                const appId = this.getAttribute('data-app-id');
+                const appCard = this.closest('.app-card');
+                deleteApp(appId, appCard);
+            });
+        });
+    });
+</script>

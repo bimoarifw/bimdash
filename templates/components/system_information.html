@@ -1,0 +1,67 @@
+<!-- System Information -->
+<div class="mb-4 sm:mb-6 lg:mb-8">
+    <h2 class="text-base sm:text-lg font-medium text-gray-900 mb-3 sm:mb-4">System Information</h2>
+    <div class="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6">
+        <div class="metric-card bg-white overflow-hidden shadow-lg rounded-xl border border-gray-100">
+            <div class="p-3 sm:p-4 lg:p-5">
+                <h3 class="text-base sm:text-lg font-medium text-gray-900 mb-3 sm:mb-4">Hardware</h3>
+                <dl class="space-y-3 sm:space-y-4">
+                    <div
+                        class="flex flex-col sm:flex-row sm:justify-between sm:items-center p-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-100">
+                        <dt class="text-xs sm:text-sm font-medium text-gray-600 mb-1 sm:mb-0">Processor</dt>
+                        <dd class="text-sm sm:text-base text-gray-900 font-medium truncate">{{
+                            system_info.processor }}</dd>
+                    </div>
+                    <div
+                        class="flex flex-col sm:flex-row sm:justify-between sm:items-center p-3 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-100">
+                        <dt class="text-xs sm:text-sm font-medium text-gray-600 mb-1 sm:mb-0">Architecture
+                        </dt>
+                        <dd class="text-sm sm:text-base text-gray-900 font-medium">{{
+                            system_info.architecture }}</dd>
+                    </div>
+                    <div
+                        class="flex flex-col sm:flex-row sm:justify-between sm:items-start p-3 bg-gradient-to-r from-purple-50 to-violet-50 rounded-lg border border-purple-100">
+                        <dt class="text-xs sm:text-sm font-medium text-gray-600 mb-1 sm:mb-0">CPU Frequency
+                        </dt>
+                        <dd class="text-sm sm:text-base text-gray-900 font-medium">
+                            {% if cpu_info.frequency_current %}
+                            {{ cpu_info.frequency_current }} MHz<br>
+                            <span class="text-xs text-gray-600">({{ cpu_info.frequency_min }}-{{
+                                cpu_info.frequency_max }} MHz)</span>
+                            {% else %}
+                            N/A
+                            {% endif %}
+                        </dd>
+                    </div>
+                </dl>
+            </div>
+        </div>
+
+        <div class="metric-card bg-white overflow-hidden shadow-lg rounded-xl border border-gray-100">
+            <div class="p-3 sm:p-4 lg:p-5">
+                <h3 class="text-base sm:text-lg font-medium text-gray-900 mb-3 sm:mb-4">Software</h3>
+                <dl class="space-y-3 sm:space-y-4">
+                    <div
+                        class="flex flex-col sm:flex-row sm:justify-between sm:items-center p-3 bg-gradient-to-r from-orange-50 to-red-50 rounded-lg border border-orange-100">
+                        <dt class="text-xs sm:text-sm font-medium text-gray-600 mb-1 sm:mb-0">Operating
+                            System</dt>
+                        <dd class="text-sm sm:text-base text-gray-900 font-medium truncate">{{
+                            system_info.os }}</dd>
+                    </div>
+                    <div
+                        class="flex flex-col sm:flex-row sm:justify-between sm:items-center p-3 bg-gradient-to-r from-teal-50 to-cyan-50 rounded-lg border border-teal-100">
+                        <dt class="text-xs sm:text-sm font-medium text-gray-600 mb-1 sm:mb-0">Hostname</dt>
+                        <dd class="text-sm sm:text-base text-gray-900 font-medium truncate">{{
+                            system_info.hostname }}</dd>
+                    </div>
+                    <div
+                        class="flex flex-col sm:flex-row sm:justify-between sm:items-center p-3 bg-gradient-to-r from-pink-50 to-rose-50 rounded-lg border border-pink-100">
+                        <dt class="text-xs sm:text-sm font-medium text-gray-600 mb-1 sm:mb-0">Boot Time</dt>
+                        <dd class="text-sm sm:text-base text-gray-900 font-medium">{{ uptime_info.boot_time
+                            }}</dd>
+                    </div>
+                </dl>
+            </div>
+        </div>
+    </div>
+</div>

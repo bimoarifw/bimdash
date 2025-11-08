@@ -1,0 +1,332 @@
+<!-- Memory Section -->
+<div class="mb-4 sm:mb-6 lg:mb-8">
+    <h2 class="text-base sm:text-lg font-medium text-gray-900 mb-3 sm:mb-4">Memory & Storage</h2>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+        <div class="metric-card bg-white overflow-hidden shadow-lg rounded-xl border border-gray-100">
+            <div class="p-3 sm:p-4 lg:p-5">
+                <h3 class="text-base sm:text-lg font-medium text-gray-900 mb-4">RAM Usage</h3>
+                <div class="mb-4 sm:mb-6">
+                    <div class="flex justify-between text-xs sm:text-sm text-gray-600 mb-2">
+                        <span>Used: {{ memory_info.virtual.used_gb }} GB</span>
+                        <span>Total: {{ memory_info.virtual.total_gb }} GB</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-3 sm:h-4 overflow-hidden shadow-inner">
+                        <div id="memory-progress-bar"
+                            class="bg-gradient-to-r from-blue-500 to-blue-600 h-3 sm:h-4 rounded-full transition-all duration-500 ease-out shadow-sm">
+                        </div>
+                    </div>
+                    <div class="text-center mt-2 sm:mt-3 text-sm sm:text-lg font-bold text-gray-700"
+                        id="ram-percentage">{{
+                        memory_info.virtual.percent }}% Used</div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="memoryChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="metric-card bg-white overflow-hidden shadow-lg rounded-xl border border-gray-100">
+            <div class="p-3 sm:p-4 lg:p-5">
+                <div
+                    class="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6 space-y-3 sm:space-y-0">
+                    <h3 class="text-base sm:text-lg font-medium text-gray-900">Disk Usage</h3>
+                    <div
+                        class="flex flex-col sm:flex-row items-stretch sm:items-center bg-gray-100 rounded-lg p-1 gap-1 sm:gap-0 overflow-x-auto">
+                        {% set unique_models = [] %}
+                        {% for partition in disk_info.partitions %}
+                        {% if partition.model not in unique_models %}
+                        {% set _ = unique_models.append(partition.model) %}
+                        {% endif %}
+                        {% endfor %}
+                        {% for model in unique_models %}
+                        <button type="button"
+                            class="disk-tab-btn relative px-3 sm:px-4 py-2 text-sm font-medium rounded-md transition-all duration-200 flex-1 sm:flex-none whitespace-nowrap {% if loop.first %}bg-white text-blue-600 shadow-sm{% else %}text-gray-600 hover:text-gray-900 hover:bg-white/50{% endif %}"
+                            data-model="{{ model }}">
+                            <span class="flex items-center justify-center space-x-1 sm:space-x-2">
+                                <svg class="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M5 19a2 2 0 01-2-2V7a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1M5 19h14a2 2 0 002-2v-5a2 2 0 00-2-2H9a2 2 0 00-2 2v5a2 2 0 01-2 2z">
+                                    </path>
+                                </svg>
+                                <span class="truncate">{{ model }}</span>
+                            </span>
+                        </button>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% for partition in disk_info.partitions %}
+                <div class="mb-4 sm:mb-6 partition-info" data-model="{{ partition.model }}" {% if not loop.first
+                    %}style="display: none;" {% endif %}>
+                    <div class="flex justify-between text-xs sm:text-sm text-gray-600 mb-2">
+                        <span class="font-medium truncate">{{ partition.device }} ({{ partition.mountpoint }})</span>
+                        <span class="text-right">{{ partition.used_gb }} / {{ partition.total_gb }}
+                            GB</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden shadow-inner">
+                        <div class="disk-progress-bar bg-gradient-to-r from-green-500 to-green-600 h-3 rounded-full transition-all duration-500 ease-out shadow-sm"
+                            style="width: {{ partition.percent }}%">
+                        </div>
+                    </div>
+                    <div class="text-center mt-1 sm:mt-2 text-xs sm:text-sm font-bold text-gray-700">{{
+                        partition.percent }}% Used</div>
+                </div>
+                {% endfor %}
+                <div class="chart-container">
+                    <canvas id="diskChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="application/json" id="disk-partitions-data">
+{{ disk_info.partitions | tojson }}
+</script>
+
+<script>
+    // Template variables - these will be replaced by Jinja2
+    const memoryUsed = "{{ memory_info.virtual.used }}";
+    const memoryAvailable = "{{ memory_info.virtual.available }}";
+
+    // Parse the template variables
+    const parsedMemoryUsed = parseInt(memoryUsed);
+    const parsedMemoryAvailable = parseInt(memoryAvailable);
+    const parsedDiskPartitions = JSON.parse(document.getElementById('disk-partitions-data').textContent);
+
+    // Set progress bar widths dynamically
+    document.addEventListener('DOMContentLoaded', function () {
+        const memoryProgressBar = document.getElementById('memory-progress-bar');
+        if (memoryProgressBar) {
+            memoryProgressBar.style.width = '{{ memory_info.virtual.percent }}%';
+        }
+
+        const diskProgressBars = document.querySelectorAll('.disk-progress-bar');
+        diskProgressBars.forEach((bar, index) => {
+            const partition = parsedDiskPartitions[index];
+            if (partition) {
+                bar.style.width = partition.percent + '%';
+            }
+        });
+    });
+    const memoryCtx = document.getElementById('memoryChart').getContext('2d');
+    const memoryData = {
+        used: parsedMemoryUsed,
+        available: parsedMemoryAvailable
+    };
+
+    window.memoryChart = new Chart(memoryCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Used', 'Available'],
+            datasets: [{
+                data: [memoryData.used, memoryData.available],
+                backgroundColor: [
+                    'rgba(239, 68, 68, 0.8)',  // Red with transparency
+                    'rgba(34, 197, 94, 0.8)'   // Green with transparency
+                ],
+                borderColor: [
+                    '#ef4444',  // Solid red border
+                    '#22c55e'   // Solid green border
+                ],
+                borderWidth: 2,
+                hoverBorderWidth: 3,
+                hoverBorderColor: [
+                    '#dc2626',
+                    '#16a34a'
+                ],
+                cutout: '75%',
+                hoverOffset: 8
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 15,
+                        usePointStyle: true,
+                        font: {
+                            size: 11,
+                            weight: '600',
+                            family: 'Inter, system-ui, sans-serif'
+                        },
+                        color: '#374151'
+                    }
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(17, 24, 39, 0.9)',
+                    titleColor: '#fff',
+                    bodyColor: '#fff',
+                    borderColor: 'rgba(255, 255, 255, 0.1)',
+                    borderWidth: 1,
+                    cornerRadius: 12,
+                    displayColors: true,
+                    padding: 12,
+                    titleFont: {
+                        size: 13,
+                        weight: '600',
+                        family: 'Inter, system-ui, sans-serif'
+                    },
+                    bodyFont: {
+                        size: 12,
+                        family: 'Inter, system-ui, sans-serif'
+                    },
+                    callbacks: {
+                        label: function (context) {
+                            const value = context.parsed;
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const percentage = ((value / total) * 100).toFixed(1);
+                            return context.label + ': ' + value.toFixed(1) + ' GB (' + percentage + '%)';
+                        }
+                    }
+                }
+            },
+            animation: {
+                animateRotate: true,
+                animateScale: true,
+                duration: 1200,
+                easing: 'easeInOutCubic'
+            },
+            elements: {
+                arc: {
+                    borderRadius: 6
+                }
+            }
+        }
+    });
+
+    // Disk Chart
+    const diskCtx = document.getElementById('diskChart').getContext('2d');
+    window.diskChart = new Chart(diskCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Used', 'Free'],
+            datasets: [{
+                data: [0, 100], // Will be updated dynamically
+                backgroundColor: [
+                    'rgba(245, 158, 11, 0.8)',  // Orange with transparency
+                    'rgba(16, 185, 129, 0.8)'   // Green with transparency
+                ],
+                borderColor: [
+                    '#f59e0b',  // Solid orange border
+                    '#10b981'   // Solid green border
+                ],
+                borderWidth: 2,
+                hoverBorderWidth: 3,
+                hoverBorderColor: [
+                    '#d97706',
+                    '#059669'
+                ],
+                cutout: '75%',
+                hoverOffset: 8
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 15,
+                        usePointStyle: true,
+                        font: {
+                            size: 11,
+                            weight: '600',
+                            family: 'Inter, system-ui, sans-serif'
+                        },
+                        color: '#374151'
+                    }
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(17, 24, 39, 0.9)',
+                    titleColor: '#fff',
+                    bodyColor: '#fff',
+                    borderColor: 'rgba(255, 255, 255, 0.1)',
+                    borderWidth: 1,
+                    cornerRadius: 12,
+                    displayColors: true,
+                    padding: 12,
+                    titleFont: {
+                        size: 13,
+                        weight: '600',
+                        family: 'Inter, system-ui, sans-serif'
+                    },
+                    bodyFont: {
+                        size: 12,
+                        family: 'Inter, system-ui, sans-serif'
+                    },
+                    callbacks: {
+                        label: function (context) {
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const percentage = ((context.parsed / total) * 100).toFixed(1);
+                            return context.label + ': ' + percentage + '%';
+                        }
+                    }
+                }
+            },
+            animation: {
+                animateRotate: true,
+                animateScale: true,
+                duration: 1200,
+                easing: 'easeInOutCubic'
+            },
+            elements: {
+                arc: {
+                    borderRadius: 6
+                }
+            }
+        }
+    });
+
+    // Function to update disk chart for selected model
+    function updateDiskChartForModel(model) {
+        const partitionsForModel = parsedDiskPartitions.filter(p => p.model === model);
+        if (partitionsForModel.length > 0 && window.diskChart) {
+            const partition = partitionsForModel[0]; // Use first partition for the model
+            window.diskChart.data.datasets[0].data = [partition.used, partition.free];
+            window.diskChart.update();
+        }
+    }
+
+    // Set initial disk chart to first model's first partition
+    if (parsedDiskPartitions && parsedDiskPartitions.length > 0) {
+        const firstModel = [...new Set(parsedDiskPartitions.map(p => p.model))][0];
+        updateDiskChartForModel(firstModel);
+    }
+
+    // Disk tab buttons event listeners
+    document.addEventListener('DOMContentLoaded', function () {
+        const diskTabButtons = document.querySelectorAll('.disk-tab-btn');
+        const partitionInfos = document.querySelectorAll('.partition-info');
+
+        diskTabButtons.forEach(button => {
+            button.addEventListener('click', function () {
+                const selectedModel = this.getAttribute('data-model');
+
+                // Update tab button styles
+                diskTabButtons.forEach(btn => {
+                    btn.classList.remove('bg-white', 'text-blue-600', 'shadow-sm');
+                    btn.classList.add('text-gray-600', 'hover:text-gray-900', 'hover:bg-white/50');
+                });
+                this.classList.remove('text-gray-600', 'hover:text-gray-900', 'hover:bg-white/50');
+                this.classList.add('bg-white', 'text-blue-600', 'shadow-sm');
+
+                // Show/hide partition info
+                partitionInfos.forEach(info => {
+                    if (info.getAttribute('data-model') === selectedModel) {
+                        info.style.display = 'block';
+                    } else {
+                        info.style.display = 'none';
+                    }
+                });
+
+                // Update chart
+                updateDiskChartForModel(selectedModel);
+            });
+        });
+    });
+</script>

@@ -1,0 +1,199 @@
+{% extends "base.html" %}
+
+{% block title %}Bimdash - Simple System Monitor{% endblock %}
+
+{% block extra_head %}
+<script src="{{ url_for('static', filename='dist/chart.js') }}"></script>
+<script src="{{ url_for('static', filename='dist/chartjs-adapter.js') }}"></script>
+<script>
+    // Chart.js configuration - defined globally for all components
+    window.chartConfig = {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: {
+            intersect: false,
+            mode: 'index'
+        },
+        plugins: {
+            legend: {
+                display: true,
+                position: 'top',
+                labels: {
+                    usePointStyle: true,
+                    padding: 20,
+                    font: {
+                        size: 12,
+                        weight: '500'
+                    }
+                }
+            },
+            tooltip: {
+                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                titleColor: '#fff',
+                bodyColor: '#fff',
+                borderColor: 'rgba(255, 255, 255, 0.1)',
+                borderWidth: 1,
+                cornerRadius: 8,
+                displayColors: true,
+                padding: 12,
+                titleFont: {
+                    size: 14,
+                    weight: '600'
+                },
+                bodyFont: {
+                    size: 13
+                }
+            }
+        },
+        animation: {
+            duration: 1000,
+            easing: 'easeInOutQuart'
+        },
+        scales: {
+            x: {
+                display: true,
+                grid: {
+                    display: false
+                },
+                ticks: {
+                    color: '#6b7280',
+                    font: {
+                        size: 11
+                    }
+                }
+            },
+            y: {
+                display: true,
+                grid: {
+                    color: 'rgba(0, 0, 0, 0.1)',
+                    lineWidth: 1
+                },
+                ticks: {
+                    color: '#6b7280',
+                    font: {
+                        size: 11
+                    }
+                }
+            }
+        }
+    };
+</script>
+<style>
+    .chart-container {
+        position: relative;
+        height: 250px;
+        width: 100%;
+    }
+
+    @media (max-width: 768px) {
+        .chart-container {
+            height: 200px;
+        }
+    }
+
+    @media (max-width: 640px) {
+        .chart-container {
+            height: 150px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .chart-container {
+            height: 120px;
+        }
+    }
+
+    .metric-card {
+        transition: transform 0.2s ease-in-out;
+    }
+
+    @media (max-width: 768px) {
+        .metric-card:hover {
+            transform: none;
+        }
+    }
+
+    .metric-card:hover {
+        transform: translateY(-2px);
+    }
+
+    .rotate-90 {
+        transform: rotate(90deg);
+    }
+
+    .status-indicator {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        display: inline-block;
+        margin-right: 8px;
+    }
+
+    .status-running {
+        background-color: #10b981;
+    }
+
+    .status-stopped {
+        background-color: #ef4444;
+    }
+
+    .status-paused {
+        background-color: #f59e0b;
+    }
+
+    /* Mobile-specific improvements */
+    @media (max-width: 640px) {
+        .mobile-stack {
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .mobile-hide {
+            display: none;
+        }
+
+        .mobile-text-sm {
+            font-size: 0.75rem;
+        }
+
+        .mobile-p-4 {
+            padding: 1rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50" data-poll-config='{{ poll_config|tojson|safe }}'>
+    {% include 'components/header.html' %}
+
+    <!-- Main Content -->
+    <main class="w-full max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+        {% include 'components/system_overview.html' %}
+        {% include 'components/system_information.html' %}
+
+        {% with apps=apps %}
+        {% include 'components/apps_section.html' %}
+        {% endwith %}
+
+        {% with cpu_info=cpu_info %}
+        {% include 'components/cpu_section.html' %}
+        {% endwith %}
+        {% with memory_info=memory_info, disk_info=disk_info %}
+        {% include 'components/memory_section.html' %}
+        {% endwith %}
+
+        {% with network_info=network_info %}
+        {% include 'components/network_section.html' %}
+        {% endwith %}
+
+        {% include 'components/processes_section.html' %}
+
+        {% include 'components/docker_section.html' %}
+    </main>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='dashboard.js') }}"></script>
+{% endblock %}

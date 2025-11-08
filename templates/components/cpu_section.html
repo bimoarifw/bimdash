@@ -1,0 +1,125 @@
+<!-- CPU Section -->
+<div class="mb-4 sm:mb-6 lg:mb-8">
+    <h2 class="text-base sm:text-lg font-medium text-gray-900 mb-3 sm:mb-4">CPU Monitoring</h2>
+    <div class="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6">
+        <div class="metric-card bg-white overflow-hidden shadow-lg rounded-xl border border-gray-100">
+            <div class="p-3 sm:p-4 lg:p-5">
+                <h3 class="text-base sm:text-lg font-medium text-gray-900 mb-3 sm:mb-4">Overall CPU Usage
+                </h3>
+                <div class="chart-container">
+                    <canvas id="cpuChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="metric-card bg-white overflow-hidden shadow-lg rounded-xl border border-gray-100">
+            <div class="p-3 sm:p-4 lg:p-5">
+                <h3 class="text-base sm:text-lg font-medium text-gray-900 mb-3 sm:mb-4">CPU Per Core</h3>
+                <div class="chart-container">
+                    <canvas id="cpuPerCoreChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // CPU Overall Chart
+    const cpuCtx = document.getElementById('cpuChart').getContext('2d');
+    const cpuGradient = cpuCtx.createLinearGradient(0, 0, 0, 400);
+    cpuGradient.addColorStop(0, 'rgba(59, 130, 246, 0.3)');
+    cpuGradient.addColorStop(1, 'rgba(59, 130, 246, 0.05)');
+
+    window.cpuChart = new Chart(cpuCtx, {
+        type: 'line',
+        data: {
+            labels: [new Date()],
+            datasets: [{
+                label: 'CPU Usage %',
+                data: [0],
+                borderColor: '#3b82f6',
+                backgroundColor: cpuGradient,
+                borderWidth: 3,
+                fill: true,
+                tension: 0.4,
+                pointBackgroundColor: '#3b82f6',
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2
+            }]
+        },
+        options: {
+            ...window.chartConfig,
+            scales: {
+                x: {
+                    ...window.chartConfig.scales.x,
+                    type: 'time',
+                    time: {
+                        unit: 'second',
+                        displayFormats: {
+                            second: 'HH:mm:ss'
+                        }
+                    }
+                },
+                y: {
+                    ...window.chartConfig.scales.y,
+                    max: 100,
+                    ticks: {
+                        ...window.chartConfig.scales.y.ticks,
+                        callback: function (value) {
+                            return value + '%';
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // CPU Per Core Chart
+    const cpuPerCoreCtx = document.getElementById('cpuPerCoreChart').getContext('2d');
+    const cpuPerCoreDataString = "{{ cpu_info.per_core_percent | tojson }}";
+    const cpuPerCoreData = JSON.parse(cpuPerCoreDataString);
+    const cpuPerCoreLabels = cpuPerCoreData.map((_, index) => `Core ${index}`);
+
+    // Create gradient for bars
+    const cpuBarGradient = cpuPerCoreCtx.createLinearGradient(0, 0, 0, 400);
+    cpuBarGradient.addColorStop(0, 'rgba(16, 185, 129, 0.9)');
+    cpuBarGradient.addColorStop(1, 'rgba(16, 185, 129, 0.6)');
+
+    window.cpuPerCoreChart = new Chart(cpuPerCoreCtx, {
+        type: 'bar',
+        data: {
+            labels: cpuPerCoreLabels,
+            datasets: [{
+                label: 'CPU Usage %',
+                data: cpuPerCoreData,
+                backgroundColor: cpuBarGradient,
+                borderColor: '#10b981',
+                borderWidth: 2,
+                borderRadius: 4,
+                borderSkipped: false
+            }]
+        },
+        options: {
+            ...window.chartConfig,
+            scales: {
+                x: {
+                    ...window.chartConfig.scales.x,
+                    ticks: {
+                        ...window.chartConfig.scales.x.ticks,
+                        maxRotation: 0
+                    }
+                },
+                y: {
+                    ...window.chartConfig.scales.y,
+                    max: 100,
+                    ticks: {
+                        ...window.chartConfig.scales.y.ticks,
+                        callback: function (value) {
+                            return value + '%';
+                        }
+                    }
+                }
+            }
+        }
+    });
+</script>

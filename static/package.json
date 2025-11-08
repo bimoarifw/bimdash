@@ -1,0 +1,23 @@
+{
+  "name": "static",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "cp node_modules/chart.js/dist/chart.umd.js dist/chart.js && cp node_modules/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.js dist/chartjs-adapter.js",
+    "build-css": "cd .. && npx @tailwindcss/cli -i static/src/input.css -o static/dist/output.css",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.1.0",
+    "tailwindcss": "^4.1.0"
+  },
+  "dependencies": {
+    "chart.js": "^4.4.0",
+    "chartjs-adapter-date-fns": "^3.0.0",
+    "chartjs-plugin-datalabels": "^2.2.0"
+  }
+}

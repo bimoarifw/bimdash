@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex, nocache">
+    <meta name="description"
+        content="Bimdash - Simple self-hosted system monitoring dashboard with real-time metrics, Docker containers, and network monitoring.">
+    <meta property="og:title" content="Bimdash - Simple System Monitor">
+    <meta property="og:description"
+        content="Simple self-hosted system monitoring dashboard with real-time metrics, Docker containers, and network monitoring.">
+    <meta property="og:image" content="{{ url_for('static', filename='images/bimdash-og.png', _external=True) }}">
+    <meta property="og:type" content="website">
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
+    <title>{% block title %}Bimdash - Simple System Monitor{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='dist/output.css') }}">
+    {% block extra_head %}{% endblock %}
+</head>
+
+<body class="{% block body_class %}bg-gray-50 min-h-screen{% endblock %}">
+    {% block content %}{% endblock %}
+    {% block scripts %}{% endblock %}
+</body>
+
+</html>

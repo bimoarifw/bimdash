@@ -1,0 +1,37 @@
+services:
+  bimdash:
+    build: .
+    container_name: bimdash
+    ports:
+      - "8535:8535"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /dev:/host/dev:ro
+      - /etc:/host/etc:ro
+      - /mnt:/mnt:ro
+      - /media:/media:ro
+      - ./data:/app/instance
+    environment:
+      - HOST_PROC=/host/proc
+      - HOST_SYS=/host/sys
+      - HOST_DEV=/host/dev
+      - HOST_ETC=/host/etc
+      - BIMDASH_USERNAME=bimdash
+      - BIMDASH_PASSWORD=secret123
+      - RATELIMIT_STORAGE_URL=redis://redis:6379
+    depends_on:
+      - redis
+    restart: unless-stopped
+
+  redis:
+    image: redis:alpine
+    container_name: bimdash-redis
+    restart: unless-stopped
+    command: redis-server --save 60 1 --loglevel warning
+    volumes:
+      - redis-data:/data
+
+volumes:
+  redis-data:

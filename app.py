@@ -609,64 +609,6 @@ def api_v1_stats():
         }
     })
 
-@app.route('/api/v1/docker', methods=['GET'])
-@require_api_key
-@limiter.limit("10 per minute")
-def api_v1_docker():
-    """
-    Get Docker containers information
-    ---
-    tags:
-      - Docker
-    security:
-      - APIKeyHeader: []
-    responses:
-      200:
-        description: Docker containers list
-        schema:
-          type: object
-          properties:
-            containers:
-              type: array
-              items:
-                type: object
-                properties:
-                  id:
-                    type: string
-                  name:
-                    type: string
-                  status:
-                    type: string
-                  image:
-                    type: string
-                  cpu_percent:
-                    type: number
-                  memory_percent:
-                    type: number
-            total:
-              type: integer
-      401:
-        description: Invalid or missing API key
-      429:
-        description: Rate limit exceeded
-    """
-    metrics = metrics_collector.metrics()
-    containers = []
-    
-    for container in metrics.get('docker', []):
-        if 'error' in container:
-            continue
-        containers.append({
-            'id': container.get('id'),
-            'name': container.get('name'),
-            'status': container.get('status'),
-            'image': container.get('image'),
-            'cpu_percent': container.get('cpu_percent', 0),
-            'memory_percent': container.get('mem_percent', 0)
-        })
-    
-    return jsonify({'containers': containers, 'total': len(containers)})
-
 
 def get_favicon_url(url):
     """Extract favicon URL from a website"""

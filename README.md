@@ -128,7 +128,6 @@ curl "http://localhost:8535/api/v1/stats?api_key=YOUR_API_KEY"
 **Available Endpoints:**
 - `GET /api/v1/system` - System information (hostname, OS, CPU count, uptime)
 - `GET /api/v1/stats` - Current statistics (CPU, memory, network)
-- `GET /api/v1/docker` - Docker containers information
 
 **Note:** API data is cached and updated every ~30 seconds when idle to save resources. It's NOT real-time.
 

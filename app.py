@@ -609,7 +609,6 @@ def api_v1_stats():
         }
     })
 
-
 def get_favicon_url(url):
     """Extract favicon URL from a website"""
     try:
